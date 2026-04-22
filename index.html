@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Risk Assessment Analyser</title>
+    <script src="static/js/libs/eyeling.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/lib/codemirror.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="static/css/style.css">
+</head>
+
+<body>
+    <div class="container my-2">
+        <div class="row mb-3">
+            <div class="col">
+                <header id="header-block"></header>
+                <div class="row">
+                    <div class="col-12 col-lg-10 offset-lg-1">
+                        <div class="d-flex gap-2 align-items-center">
+                            <select id="policy-examples" class="form-select flex-grow-1 w-auto">
+                                <option value="">Select a policy term example...</option>
+                                <option value="abusive_content_removal">Abusive – content removal</option>
+                                <option value="abusive_unilateral_change">Abusive – unilateral change</option>
+                                <option value="abusive_unilateral_termination">Abusive – unilateral termination</option>
+                                <option value="abusive_contract_by_using">Abusive – contract by using</option>
+                                <option value="abusive_arbitration">Abusive – arbitration</option>
+                                <option value="abusive_choice_of_law">Abusive – choice of law</option>
+                                <option value="abusive_jurisdiction">Abusive – jurisdiction</option>
+                                <option value="non_abusive_content_removal">Non-abusive – content removal</option>
+                                <option value="non_abusive_unilateral_change">Non-abusive – unilateral change</option>
+                                <option value="non_abusive_unilateral_termination">Non-abusive – unilateral termination</option>
+                                <option value="non_abusive_contract_by_using">Non-abusive – contract by using</option>
+                                <option value="non_abusive_arbitration">Non-abusive – arbitration</option>
+                                <option value="non_abusive_choice_of_law">Non-abusive – choice of law</option>
+                                <option value="non_abusive_jurisdiction">Non-abusive – jurisdiction</option>
+                            </select>
+                            <button id="load-policy-example" class="btn btn-secondary">Load example</button>
+                        </div>
+                        <textarea id="policy-input" placeholder="Write your policy here..." class="form-control my-2"
+                            rows="8"></textarea>
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button id="btn-analyse-policy" class="btn btn-primary mb-2">Analyse policy</button>
+                        </div>
+
+                        <div id="risk-result" class="row visually-hidden">
+                            <h2>Risk Assessment Result:</h2>
+                            <p id="risk-summary" class="mt-2 fw-semibold"></p>
+                            <div>
+                                <pre id="risk-output" class="border p-2"></pre>
+                            </div>
+                        </div>
+
+                        <div id="mitigation-result" class="row visually-hidden">
+                            <h2>Mitigation Term Suggestions:</h2>
+                            <div>
+                                <pre id="mitigation-output" class="border p-2"></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            fetch("header.html")
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById("header-block").innerHTML = data;
+                });
+        </script>
+        <script src="https://unpkg.com/n3@1.17.3/browser/n3.min.js"></script>
+        <script src="static/js/helpers.js"></script>
+        <script src="static/js/eyeling-worker.js"></script>
+</body>
+
+</html>

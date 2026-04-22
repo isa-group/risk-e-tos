@@ -1,0 +1,63 @@
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix : <http://example.com/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix odrl: <http://www.w3.org/ns/odrl/2/> .
+@prefix dpv-odrl: <https://w3id.org/dpv/mappings/odrl#> .
+@prefix dpv: <https://w3id.org/dpv#> .
+@prefix pd: <https://w3id.org/dpv/pd#> .
+@prefix loc: <https://w3id.org/dpv/loc#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix justifications: <https://w3id.org/dpv/justifications#> .
+@base <http://example.com> .
+
+:Agreement a odrl:Agreement ;
+    dcterms:title "Agreement with a user data removal term" ;
+    odrl:profile dpv-odrl: ;
+    :policyGraph {
+        :PermissionDeleteUserAccount a odrl:Permission ;
+            dcterms:description "Provider can delete your account with at least 30 days of prior notice and with reasons" ;
+            odrl:assigner :customer ; # an odrl:Agreement needs to have an odrl:assigner
+            odrl:assignee :provider ;
+            odrl:action dpv-odrl:Remove ;
+            odrl:target :userData ;
+            odrl:constraint [
+                a odrl:Constraint ;
+                odrl:leftOperand odrl:delayPeriod ;
+                odrl:operator odrl:gteq ;
+                odrl:rightOperand "P30D"^^xsd:duration
+            ] ;
+            odrl:constraint [
+                a odrl:Constraint ;
+                odrl:leftOperand dpv-odrl:Justification ; # or dpv:Justification
+                odrl:operator odrl:isAnyOf ;
+                odrl:rightOperand (
+                    justifications:SecurityImpaired
+                    justifications:UnlawfulActivityObjection
+                    justifications:LegalObligation
+                )
+            ] ;
+            odrl:duty [
+                a odrl:Duty ;
+                odrl:action odrl:inform ;
+                odrl:assignee :provider ;
+                # odrl:target :userData ; not needed
+                odrl:informedParty :customer ;
+                odrl:constraint [
+                    a odrl:Constraint ;
+                    odrl:leftOperand dpv-odrl:Purpose ;
+                    odrl:operator odrl:isA ;
+                    odrl:rightOperand dpv:CommunicationForCustomerCare 
+                ] ;
+                odrl:constraint [
+                    a odrl:Constraint ;
+                    odrl:leftOperand odrl:deliveryChannel ;
+                    odrl:operator odrl:isA ;
+                    odrl:rightOperand :customerContact
+                ] ;
+            ] .
+
+        :provider a dpv-odrl:ServiceProvider .
+        :customer a dpv-odrl:Customer .
+        :userData a dpv-odrl:PersonalData .
+        :customerContact a pd:Contact .
+} .

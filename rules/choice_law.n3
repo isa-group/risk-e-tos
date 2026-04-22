@@ -1,0 +1,55 @@
+  
+@prefix : <http://example.com/> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix odrl: <http://www.w3.org/ns/odrl/2/> .
+@prefix tosl: <https://w3id.org/tosl/> .
+@prefix log: <http://www.w3.org/2000/10/swap/log#> .
+@prefix string: <http://www.w3.org/2000/10/swap/string#> .
+@prefix dpv: <https://w3id.org/dpv#> .
+@prefix risk: <https://w3id.org/dpv/risk#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix new: <http://example.com/new#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+{
+    ?agreement :policyGraph ?G .
+
+    ?G log:includes {
+        ?litigation a tosl:Litigation .
+    } .
+
+    ?G log:notIncludes {
+        ?litigation tosl:governedBy tosl:consumerPlaceLaw .
+    } .
+
+    ( "Risk: dispute resolution is governed by a specific jurisdiction's law, excluding the possibility of using the consumer's country law. Dispute resolution method: %s"
+        ?litigation ) string:format ?why .
+
+    ( ?agreement :UnfairContractClause ?litigation ) log:skolem ?src .
+    ( ?agreement :RiskChoiceOfLaw ?litigation ) log:skolem ?risk .
+}
+=>
+{
+
+    ?src a new:ChoiceOfLawClause ;
+        dpv:hasContractualClause ?litigation .
+
+    ?risk a dpv:Risk ;
+        skos:broader risk:RightsDenied, risk:RightsLimited, risk:RightsObstructed ;
+        dpv:hasRiskSource ?src ;
+        dct:description ?why .
+
+    ?risk dpv:hasConsequence [
+        a risk:LegalSupportLimited, risk:RightsExercisePrevented ;
+        dpv:hasImpact risk:JudicialCosts ;
+        dpv:isMitigatedByMeasure new:ConsumerCountryGoverningLaw
+    ] .
+
+    new:ConsumerCountryGoverningLaw a dpv:RiskMitigationMeasure ;
+        :suggestAdd {
+            :litigation tosl:governedBy tosl:consumerPlaceLaw .
+        } .
+
+    ?risk log:outputString ?why .
+
+} .

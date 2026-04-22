@@ -1,0 +1,18 @@
+@prefix : <http://example.com/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix odrl: <http://www.w3.org/ns/odrl/2/> .
+@prefix tosl: <https://w3id.org/tosl/> .
+@base <http://example.com> .
+
+:Agreement a odrl:Agreement ;
+    dcterms:title "Agreement without litigation process and arbitration obligatory" ;
+    tosl:onDispute :arbitration ;
+    :policyGraph {
+        :arbitration a tosl:Arbitration;
+            dcterms:description "This Agreement will be governed by the laws of The Netherlands, and the parties consent to the exclusive jurisdiction of its courts for any related actions.";    
+            tosl:targetParty :customer ;
+            tosl:takesPlaceIn :netherlandsCourts ;
+            tosl:governedBy :netherlandsLaw .
+        
+        :customer a tosl:Customer .
+    } .

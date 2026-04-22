@@ -1,0 +1,52 @@
+@prefix : <http://example.com/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix odrl: <http://www.w3.org/ns/odrl/2/> .
+@prefix tosl: <https://w3id.org/tosl/> .
+@base <http://example.com> .
+
+:Agreement a odrl:Agreement ;
+    dcterms:title "Agreement with an agreement termination term" ;
+    :policyGraph {
+        :permissionTerminateTerms a odrl:Permission ;
+            dcterms:description "Provider can terminate the agreement with at least 30 days of prior notice and with reasons";
+            odrl:assignee :provider ;
+            odrl:action tosl:terminate;
+            odrl:target :agreement ;
+            odrl:constraint [
+                a odrl:Constraint ;
+                odrl:leftOperand odrl:delayPeriod ;
+                odrl:operator odrl:gteq ;
+                odrl:rightOperand "P30D"^^xsd:duration
+            ] ;
+            odrl:constraint [
+                a odrl:Constraint ;
+                odrl:leftOperand tosl:justification ;
+                odrl:operator odrl:isAnyOf ;
+                odrl:rightOperand ( "termviolation" "serviceprotection" "fraudprevention" )
+            ] ;
+            odrl:duty [
+                a odrl:Duty ;
+                odrl:assignee :provider ;
+                odrl:action odrl:inform ;
+                odrl:target :agreement ;
+                odrl:informedParty :customer ;
+                odrl:constraint [
+                    a odrl:Constraint ;
+                    odrl:leftOperand odrl:deliveryChannel ;
+                    odrl:operator odrl:isAnyOf ;
+                    odrl:rightOperand ( "email"^^xsd:string "inProductNotification"^^xsd:string )
+                ]
+            ] ;
+            odrl:duty [
+                a odrl:Duty ;
+                odrl:assignee :provider ;
+                odrl:action odrl:compensate ;
+                odrl:target :agreement ;
+                odrl:compensatedParty :customer ;
+                odrl:compensatingParty :provider ;
+            ] .
+            
+        :provider a tosl:Provider .
+        :customer a tosl:Customer .
+    } .

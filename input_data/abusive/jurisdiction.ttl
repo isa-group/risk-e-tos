@@ -1,0 +1,24 @@
+@prefix : <http://example.com/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix odrl: <http://www.w3.org/ns/odrl/2/> .
+@prefix tosl: <https://w3id.org/tosl/> .
+@base <http://example.com> .
+
+:Agreement a odrl:Agreement ;
+    dcterms:title "Agreement with jurisdiction in Dublin courts" ;
+    tosl:onDispute :JurisdictionLitigation ;
+    :policyGraph {
+        :JurisdictionLitigation a tosl:Litigation;
+            dcterms:description "If Customer's principal office is European Union Agreement will be governed by the laws of Ireland" ;
+            tosl:targetParty :customer ;
+            tosl:takesPlaceIn :DublinCourts ;
+            tosl:governedBy :IrelandLaw ;
+            tosl:condition [
+                a odrl:Constraint ;
+                odrl:leftOperand tosl:consumerResidentCountry ;
+                odrl:operator odrl:isAnyOf ;
+                odrl:rightOperand ("AT" "BE" "BG" "HR" "CY" "CZ" "DK" "EE" "FI" "FR" "DE" "GR" "HU" "IS" "IE" "IT" "LV" "LI" "LT" "LU" "MT" "NL" "NO" "PL" "PT" "RO" "SK" "SI" "ES" "SE" "CH") ;
+            ] .
+            
+        :customer a tosl:Customer .
+    } .

@@ -1,0 +1,17 @@
+@prefix : <http://example.com/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix odrl: <http://www.w3.org/ns/odrl/2/> .
+@prefix tosl: <https://w3id.org/tosl/> .
+@base <http://example.com> .
+
+:Agreement a odrl:Agreement ;
+    dcterms:title "Agreement with an agreement termination term" ;
+    :policyGraph {
+        :permissionTerminateTerms a odrl:Permission ;
+            dcterms:description "Provider can terminate the agreement at their discretion";
+            odrl:assignee :provider ;
+            odrl:action tosl:terminate;
+            odrl:target :agreement .
+
+        :provider a tosl:Provider .
+    } .

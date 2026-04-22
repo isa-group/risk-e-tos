@@ -1,0 +1,18 @@
+@prefix : <http://example.com/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix odrl: <http://www.w3.org/ns/odrl/2/> .
+@prefix tosl: <https://w3id.org/tosl/> .
+@base <http://example.com> .
+
+:Agreement a odrl:Agreement ;
+    dcterms:title "Agreement with a user data removal term" ;
+    :policyGraph {
+        :PermissionDeleteUserData a odrl:Permission ;
+            dcterms:description "Provider can delete your data without prior notice and without a reason" ;
+            odrl:assignee :provider ;
+            odrl:action tosl:remove ;
+            odrl:target :userData .
+
+        :provider a tosl:Provider .
+        :userData a tosl:UserContent .
+    } .

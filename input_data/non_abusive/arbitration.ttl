@@ -1,0 +1,24 @@
+@prefix : <http://example.com/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix odrl: <http://www.w3.org/ns/odrl/2/> .
+@prefix tosl: <https://w3id.org/tosl/> .
+@base <http://example.com> .
+
+:Agreement a odrl:Agreement ;
+    dcterms:title "Agreement with litigation process and arbitration obligatory" ;
+    tosl:onDispute :litigation ;
+    :policyGraph {
+        :litigation a tosl:Litigation;
+            dcterms:description "This Agreement will be governed by the laws of consumer resident.";    
+            tosl:targetParty :customer ;
+            tosl:takesPlaceIn tosl:consumerPlaceCourts ;
+            tosl:governedBy tosl:consumerPlaceLaw ;
+            tosl:requires :arbitration .
+        
+        :arbitration a tosl:Arbitration ;
+            tosl:targetParty :customer ;
+            tosl:takesPlaceIn tosl:consumerPlaceCourts ;
+            tosl:governedBy tosl:consumerPlaceLaw .
+            
+        :customer a tosl:Customer .
+    } .

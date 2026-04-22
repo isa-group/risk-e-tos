@@ -1,0 +1,17 @@
+@prefix : <http://example.com/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix odrl: <http://www.w3.org/ns/odrl/2/> .
+@prefix tosl: <https://w3id.org/tosl/> .
+@base <http://example.com> .
+
+:Agreement a odrl:Agreement ;
+    dcterms:title "Agreement with a pricing modification term" ;
+    :policyGraph {
+        :permissionChangePricing a odrl:Permission ;
+            dcterms:description "Provider may change prices from time to time.";
+            odrl:assignee :provider ;
+            odrl:action odrl:modify;
+            odrl:target :pricing .
+
+        :provider a tosl:Provider .
+    } .

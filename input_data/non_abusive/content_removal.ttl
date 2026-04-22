@@ -1,0 +1,43 @@
+@prefix : <http://example.com/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix odrl: <http://www.w3.org/ns/odrl/2/> .
+@prefix tosl: <https://w3id.org/tosl/> .
+@base <http://example.com> .
+
+:Agreement :policyGraph {
+    :PermissionDeleteUserAccount a odrl:Permission ;
+        dcterms:description "Provider can delete your account with at least 30 days of prior notice and with reasons" ;
+        odrl:assignee :provider ;
+        odrl:action tosl:remove ;
+        odrl:target :userData ;
+        odrl:constraint [
+            a odrl:Constraint ;
+            odrl:leftOperand odrl:delayPeriod ;
+            odrl:operator odrl:gteq ;
+            odrl:rightOperand "P30D"^^xsd:duration
+        ] ;
+        odrl:constraint [
+            a odrl:Constraint ;
+            odrl:leftOperand tosl:justification ;
+            odrl:operator odrl:isAnyOf ;
+            odrl:rightOperand ( "termviolation" "serviceprotection" "fraudprevention"  )
+        ] ;
+        odrl:duty [
+            a odrl:Duty ;
+            odrl:action odrl:inform ;
+            odrl:assignee :provider ;
+            odrl:target :userData ;
+            odrl:informedParty :customer ;
+            odrl:constraint [
+                a odrl:Constraint ;
+                odrl:leftOperand odrl:deliveryChannel ;
+                odrl:operator odrl:isAnyOf ;
+                odrl:rightOperand ( "email"^^xsd:string "inProductNotification"^^xsd:string )
+            ] ;
+        ] .
+
+        :provider a tosl:Provider .
+        :userData a tosl:UserContent .
+        :customer a tosl:Customer .
+} .

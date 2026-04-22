@@ -1,0 +1,40 @@
+@prefix : <http://example.com/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix odrl: <http://www.w3.org/ns/odrl/2/> .
+@prefix dpv-odrl: <https://w3id.org/dpv/mappings/odrl#> .
+@prefix dpv: <https://w3id.org/dpv#> .
+@prefix pd: <https://w3id.org/dpv/pd#> .
+@prefix loc: <https://w3id.org/dpv/loc#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix justifications: <https://w3id.org/dpv/justifications#> .
+@prefix legal-eu: <https://w3id.org/dpv/legal/eu#> .
+@prefix tosl: <https://w3id.org/tosl/> .
+@base <http://example.com> .
+
+
+:Agreement a odrl:Agreement ;
+    dcterms:title "Agreement with litigation process governed by netherlandsLaw" ;
+    odrl:profile dpv-odrl: ;
+    :policyGraph {
+        :DutyChoiceOfLaw a odrl:Duty ;
+            dcterms:description "Agreement with litigation process governed by netherlandsLaw" ;
+            odrl:assigner :provider ; # an odrl:Agreement needs to have an odrl:assigner
+            odrl:assignee :customer ;
+            odrl:action tosl:Litigation ;
+            # odrl:target :agreement ; # I don't think we need an odrl:target here
+            odrl:constraint [
+                a odrl:Constraint;
+                odrl:leftOperand dpv-odrl:Law ;
+                odrl:operator odrl:eq ;
+                odrl:rightOperand legal-eu:law-GDPR
+            ] ;
+            odrl:constraint [
+                a odrl:Constraint;
+                odrl:leftOperand dpv-odrl:Location ;
+                odrl:operator odrl:eq ;
+                odrl:rightOperand loc:NL
+            ] .
+            
+        :provider a dpv-odrl:ServiceProvider .
+        :customer a dpv-odrl:Customer .
+    } .

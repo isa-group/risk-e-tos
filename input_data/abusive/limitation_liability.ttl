@@ -1,0 +1,17 @@
+@prefix : <http://example.com/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix odrl: <http://www.w3.org/ns/odrl/2/> .
+@prefix tosl: <https://w3id.org/tosl/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@base <http://example.com/> .
+
+:Agreement a odrl:Agreement ;
+    dcterms:title "Agreement with a limitation of liability term" ;
+    tosl:limitationOfLiability :limitationDirectDamageAndAnyLoss ;
+    :policyGraph {
+        :limitationDirectDamageAndAnyLoss a tosl:Liability ;
+            dcterms:description "We do not take responsibility for loss or damage caused by us" ;
+            tosl:liableParty :provider ;
+            tosl:targetParty :customer ;
+            rdf:value tosl:directDamage, tosl:anyLoss .
+    } .
