@@ -2,6 +2,7 @@
   const LOG_OUTPUT_STRING = 'http://www.w3.org/2000/10/swap/log#outputString';
   const RDF_TYPE = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type';
   const DPV_RISK = 'https://w3id.org/dpv#Risk';
+  const DPV_IS_MITIGATED_BY_MEASURE = 'https://w3id.org/dpv#isMitigatedByMeasure';
 
   const PASS_QUERY = `
   @prefix log: <http://www.w3.org/2000/10/swap/log#> .
@@ -210,6 +211,80 @@
     return triples.map((triple) => tripleToText(triple, prefixes)).join('\n').trim();
   }
 
+  function termKey(term) {
+    if (!term) return '';
+    if (typeof term.label === 'string' && term.label.trim()) return term.label.trim();
+    if (typeof term.value === 'string' && term.value.trim()) return term.value.trim();
+    if (term.termType === 'BlankNode' && typeof term.value === 'string' && term.value.trim()) {
+      return `_:${term.value.trim()}`;
+    }
+    return String(term).trim();
+  }
+
+  function isBlankTerm(term, key) {
+    if (!term) return false;
+    if (term.termType === 'BlankNode') return true;
+    if (typeof term.label === 'string') return true;
+    const text = key != null ? String(key) : termKey(term);
+    return /^_:/.test(text) || /^genid:/.test(text);
+  }
+
+  function extractRiskTriples(triples) {
+    const bySubject = new Map();
+    const roots = new Set();
+
+    for (const triple of Array.isArray(triples) ? triples : []) {
+      const s = termKey(triple?.s);
+      const p = termKey(triple?.p);
+      const o = termKey(triple?.o);
+      if (!s || !p || !o) continue;
+
+      const parsedTriple = { triple, s, p, o };
+
+      if (!bySubject.has(s)) {
+        bySubject.set(s, []);
+      }
+      bySubject.get(s).push(parsedTriple);
+
+      if (
+        (p === RDF_TYPE || p === 'a') &&
+        (o === DPV_RISK || o === '<https://w3id.org/dpv#Risk>' || o === 'dpv:Risk')
+      ) {
+        roots.add(s);
+      }
+    }
+
+    const selected = [];
+    const visitedSubjects = new Set();
+
+    function visit(subject) {
+      if (visitedSubjects.has(subject)) return;
+      visitedSubjects.add(subject);
+
+      const subjectTriples = bySubject.get(subject) || [];
+      for (const item of subjectTriples) {
+        if (item.p === DPV_IS_MITIGATED_BY_MEASURE || item.p === 'dpv:isMitigatedByMeasure') {
+          continue;
+        }
+
+        selected.push(item.triple);
+
+        if (
+          isBlankTerm(item.triple?.o, item.o) &&
+          bySubject.has(item.o)
+        ) {
+          visit(item.o);
+        }
+      }
+    }
+
+    for (const root of roots) {
+      visit(root);
+    }
+
+    return selected;
+  }
+
   function splitMitigationTriples(triples, prefixes) {
     const mitigation = [];
     const remaining = [];
@@ -344,8 +419,10 @@
         const messages =
           extractOutputStringsFromTriples(queryTriples) || extractOutputStrings(closureN3);
 
-        const cleanClosureN3 = stripSuggestAddBlocks(closureN3);
-        riskOutput.textContent = renderPatchTTL(cleanClosureN3);
+        const riskTriples = extractRiskTriples(queryTriples);
+        const { mitigation: mitigationTriples } = splitMitigationTriples(queryTriples, prefixes);
+        const renderedRisk = renderTriples(riskTriples, prefixes).trim();
+        riskOutput.textContent = renderedRisk;
 
         if (riskSummary) {
           riskSummary.textContent = messages ||
@@ -358,7 +435,6 @@
           riskResult.classList.remove("visually-hidden");
         }
 
-        const { mitigation: mitigationTriples } = splitMitigationTriples(queryTriples, prefixes);
         if (mitigationTriples.length) {
           mitigationOutput.textContent = renderTriples(mitigationTriples, prefixes);
           mitigationResult.classList.remove("visually-hidden");
