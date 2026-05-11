@@ -4,12 +4,9 @@
 @prefix dpv-odrl: <https://w3id.org/dpv/mappings/odrl#> .
 @prefix dpv: <https://w3id.org/dpv#> .
 @prefix pd: <https://w3id.org/dpv/pd#> .
-@prefix loc: <https://w3id.org/dpv/loc#> .
-@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
 @prefix justifications: <https://w3id.org/dpv/justifications#> .
 @prefix tosl: <https://w3id.org/tosl/> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
-@base <http://example.com> .
 
 :Agreement a odrl:Agreement ;
     dcterms:title "Agreement with an agreement termination term" ;
