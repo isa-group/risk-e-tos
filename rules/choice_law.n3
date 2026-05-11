@@ -8,8 +8,10 @@
 @prefix dpv: <https://w3id.org/dpv#> .
 @prefix risk: <https://w3id.org/dpv/risk#> .
 @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
-@prefix new: <http://example.com/new#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix tosl-risk: <https://w3id.org/tosl/risk#> .
+@prefix dpv-odrl: <https://w3id.org/dpv/mappings/odrl#> .
+
 
 {
     ?agreement :policyGraph ?G .
@@ -31,7 +33,7 @@
 =>
 {
 
-    ?src a new:ChoiceOfLawClause ;
+    ?src a tosl-risk:ChoiceOfLawClause ;
         dpv:hasContractualClause ?litigation .
 
     ?risk a dpv:Risk ;
@@ -42,14 +44,12 @@
     ?risk dpv:hasConsequence [
         a risk:LegalSupportLimited, risk:RightsExercisePrevented ;
         dpv:hasImpact risk:JudicialCosts ;
-        dpv:isMitigatedByMeasure new:ConsumerCountryGoverningLaw
+        dpv:isMitigatedByMeasure tosl-risk:ConsumerCountryGoverningLaw
     ] .
 
-    new:ConsumerCountryGoverningLaw a dpv:RiskMitigationMeasure ;
+    tosl-risk:ConsumerCountryGoverningLaw 
         :suggestAdd {
             :litigation tosl:governedBy tosl:consumerPlaceLaw .
         } .
-
-    ?risk log:outputString ?why .
 
 } .

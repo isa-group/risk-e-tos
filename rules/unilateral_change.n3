@@ -6,9 +6,12 @@
 @prefix string: <http://www.w3.org/2000/10/swap/string#> .
 @prefix dpv: <https://w3id.org/dpv#> .
 @prefix risk: <https://w3id.org/dpv/risk#> .
+@prefix justifications: <https://w3id.org/dpv/justifications#> .
 @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
-@prefix new: <http://example.com/new#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix tosl-risk: <https://w3id.org/tosl/risk#> .
+@prefix dpv-odrl: <https://w3id.org/dpv/mappings/odrl#> .
+
 
 {
     ?agreement :policyGraph ?G .
@@ -65,22 +68,20 @@
 
     ?perm a dpv:Permission .
 
-    ?src a new:UnilateralChangeClause ;
-    dpv:hasContractualClause ?perm .
-
     ?risk a dpv:Risk ;
         skos:broader risk:Harm, risk:ServiceCostIncreased, risk:ServicePartiallyProvided  ;
-        dpv:hasRiskSource ?src ;
-        dct:description ?why .
+        dct:description ?why ;
+        dpv:hasRiskSource [
+            a tosl-risk:UnilateralChangeClause ;
+            dpv:hasContractualClause ?perm
+        ] ;
+        dpv:isMitigatedByMeasure tosl-risk:ChangeNotice, tosl-risk:ProvideJustification, tosl-risk:ReaffirmConsent ;
+        dpv:hasConsequence [
+            a risk:QualityDegraded, risk:ServiceQualityReduced, risk:ServiceProvisionDelayed, risk:ServiceNotProvided ;
+            dpv:hasImpact risk:FinancialLoss, risk:NonMaterialDamage, risk:CustomerConfidenceLoss ;
+        ] .
 
-    ?risk dpv:hasConsequence [
-        a risk:QualityDegraded, risk:ServiceQualityReduced, risk:ServiceProvisionDelayed, risk:ServiceNotProvided ;
-        dpv:hasImpact risk:FinancialLoss, risk:NonMaterialDamage, risk:CustomerConfidenceLoss ;
-        dpv:isMitigatedByMeasure new:ChangeNotice, new:ProvideJustification, new:ReaffirmConsent
-    ] .
-
-    new:ChangeNotice a dpv:OrganisationalMeasure, dpv:RiskMitigationMeasure ;
-        skos:broader dpv:Notice ;
+    tosl-risk:ChangeNotice
         :suggestAdd {
             ?perm 
             odrl:constraint [
@@ -93,38 +94,43 @@
                 a odrl:Duty ;
                 odrl:assignee :provider ;
                 odrl:action odrl:inform ;
-                odrl:target :pricing ;
                 odrl:informedParty :customer ;
                 odrl:constraint [
                     a odrl:Constraint ;
+                    odrl:leftOperand dpv-odrl:Purpose ;
+                    odrl:operator odrl:isA ;
+                    odrl:rightOperand dpv:CommunicationForCustomerCare 
+                ] ;
+                odrl:constraint [
+                    a odrl:Constraint ;
                     odrl:leftOperand odrl:deliveryChannel ;
-                    odrl:operator odrl:isAnyOf ;
-                    odrl:rightOperand ( "email"^^xsd:string "inProductNotification"^^xsd:string )
+                    odrl:operator odrl:isA ;
+                    odrl:rightOperand :customerContact
                 ]
             ] .
         } .
 
-    new:ReaffirmConsent a dpv:RiskMitigationMeasure ;
+    tosl-risk:ReaffirmConsent 
         :suggestAdd {
             ?perm 
             odrl:constraint [
                 a odrl:Constraint ;
-                odrl:leftOperand tosl:consentType;
+                odrl:leftOperand dpv-odrl:ConsentControl ;
                 odrl:operator odrl:eq ;
-                odrl:rightOperand tosl:explicitConsent
+                odrl:rightOperand dpv:ReaffirmConsent
             ] .
         } .
 
-    new:ProvideJustification a dpv:RiskMitigationMeasure ;
+    tosl-risk:ProvideJustification 
         :suggestAdd {
             ?perm 
             odrl:constraint [
                 a odrl:Constraint ;
-                odrl:leftOperand tosl:justification ;
+                odrl:leftOperand dpv-odrl:Justification ;
                 odrl:operator odrl:isAnyOf ;
-                odrl:rightOperand ( "lawchange" "update" )
+                odrl:rightOperand ( justifications:LegalObligation 
+                                    dpv:ImproveExistingProductsAndServices 
+                                    )
             ] .
         } .
-
-    ?risk log:outputString ?why .
 } .

@@ -7,8 +7,10 @@
 @prefix dpv: <https://w3id.org/dpv#> .
 @prefix risk: <https://w3id.org/dpv/risk#> .
 @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
-@prefix new: <http://example.com/new#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix tosl-risk: <https://w3id.org/tosl/risk#> .
+@prefix dpv-odrl: <https://w3id.org/dpv/mappings/odrl#> .
+
 
 {
   ?agreement :policyGraph ?G .
@@ -42,7 +44,7 @@
 
     ?duty a dpv:Obligation .
 
-    ?src a new:ContractByUsingClause ;
+    ?src a tosl-risk:ContractByUsingClause ;
         dpv:hasContractualClause ?duty .
 
     ?risk a dpv:Risk ;
@@ -53,11 +55,10 @@
     ?risk dpv:hasConsequence [
         a risk:QualityDegraded ;
         dpv:hasImpact risk:FinancialLoss, risk:NonMaterialDamage, risk:CustomerConfidenceLoss ;
-        dpv:isMitigatedByMeasure new:ExplicitConsentRequirement
+        dpv:isMitigatedByMeasure tosl-risk:ExplicitConsentRequirement
     ] .
 
-    new:ExplicitConsentRequirement a dpv:RiskMitigationMeasure ;
-        skos:broader dpv:Consent ;
+    tosl-risk:ExplicitConsentRequirement
         :suggestAdd {
             ?duty
             odrl:constraint [
@@ -67,7 +68,5 @@
                 odrl:rightOperand tosl:explicitConsent
             ] .
         } .
-
-    ?risk log:outputString ?why .
 
 } .

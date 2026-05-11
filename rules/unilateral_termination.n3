@@ -6,9 +6,11 @@
 @prefix string: <http://www.w3.org/2000/10/swap/string#> .
 @prefix dpv: <https://w3id.org/dpv#> .
 @prefix risk: <https://w3id.org/dpv/risk#> .
+@prefix justifications: <https://w3id.org/dpv/justifications#> .
 @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
-@prefix new: <http://example.com/new#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix tosl-risk: <https://w3id.org/tosl/risk#> .
+@prefix dpv-odrl: <https://w3id.org/dpv/mappings/odrl#> .
 
 {
     ?agreement :policyGraph ?G .
@@ -19,18 +21,16 @@
         odrl:action tosl:terminate ;
         odrl:target ?a .
 
-        ?p a tosl:Provider .
+        ?p a dpv-odrl:ServiceProvider .
     } .
 
     ?G log:notIncludes {
         ?perm odrl:constraint [
-        odrl:leftOperand tosl:justification
+            odrl:leftOperand dpv-odrl:Justification
         ] .
-    } .
-
-    ?G log:notIncludes {
+    
         ?perm odrl:duty [
-        odrl:action odrl:inform
+            odrl:action odrl:inform
         ] .
 
         ?perm odrl:constraint [
@@ -56,22 +56,20 @@
 
     ?perm a dpv:Permission .
 
-    ?src a new:UnilateralTerminationClause ;
-        dpv:hasContractualClause ?perm .
-
     ?risk a dpv:Risk ;
-        skos:broader risk:DataUnavailable, risk:ServiceTermination, risk:Harm ;
-        dpv:hasRiskSource ?src ;
-        dct:description ?why .
+        skos:broader risk:DataUnavailable, risk:ServiceTermination ;
+        dct:description ?why ;
+        dpv:hasRiskSource [
+            a tosl-risk:UnilateralTerminationClause ;
+            dpv:hasContractualClause ?perm
+        ] ;
+        dpv:isMitigatedByMeasure tosl-risk:TerminationNotice, tosl-risk:ProvideJustification, tosl-risk:RightToCompensation ;
+        dpv:hasConsequence [
+            a risk:DataLoss, risk:ServiceNotProvided ;
+            dpv:hasImpact risk:FinancialLoss, risk:NonMaterialDamage, risk:CustomerConfidenceLoss ;
+        ] .
 
-    ?risk dpv:hasConsequence [
-        a risk:DataLoss, risk:ServiceNotProvided ;
-        dpv:hasImpact risk:FinancialLoss, risk:NonMaterialDamage, risk:CustomerConfidenceLoss ;
-        dpv:isMitigatedByMeasure new:TerminationNotice, new:ProvideJustification, new:RightToCompensation
-    ] .
-
-    new:TerminationNotice a dpv:OrganisationalMeasure, dpv:RiskMitigationMeasure ;
-        skos:broader dpv:Notice ;
+    tosl-risk:TerminationNotice 
         :suggestAdd {
             ?perm 
             odrl:constraint [
@@ -84,39 +82,53 @@
                 a odrl:Duty ;
                 odrl:assignee :provider ;
                 odrl:action odrl:inform ;
-                odrl:target ?a ;
                 odrl:informedParty :customer ;
                 odrl:constraint [
                     a odrl:Constraint ;
+                    odrl:leftOperand dpv-odrl:Purpose ;
+                    odrl:operator odrl:isA ;
+                    odrl:rightOperand dpv:CommunicationForCustomerCare 
+                ] ;
+                odrl:constraint [
+                    a odrl:Constraint ;
                     odrl:leftOperand odrl:deliveryChannel ;
-                    odrl:operator odrl:isAnyOf ;
-                    odrl:rightOperand ( "email"^^xsd:string "inProductNotification"^^xsd:string )
-                ]
+                    odrl:operator odrl:isA ;
+                    odrl:rightOperand :customerContact
+                ];
             ] .
+            :customerContact a pd:Contact .
         } .
 
-    new:ProvideJustification a dpv:RiskMitigationMeasure ;
+    tosl-risk:ProvideJustification
         :suggestAdd {
             ?perm 
             odrl:constraint [
                 a odrl:Constraint ;
-                odrl:leftOperand tosl:justification ;
+                odrl:leftOperand dpv-odrl:Justification ; 
                 odrl:operator odrl:isAnyOf ;
-                odrl:rightOperand ( "termviolation" "serviceprotection" "fraudprevention" )
+                odrl:rightOperand (
+                    justifications:SecurityImpaired
+                    justifications:UnlawfulActivityObjection
+                    justifications:LegalObligation
+                )
             ] .
         } .
 
-    new:RightToCompensation a dpv:RiskMitigationMeasure ;
-        :suggestAdd {
-            ?perm 
-            odrl:duty [
-                a odrl:Duty ;
-                odrl:assignee :provider ;
-                odrl:action odrl:compensate ;
-                odrl:target ?a ;
-                odrl:informedParty :customer ;
-            ] .
-        } .
-
-    ?risk log:outputString ?why .
+    tosl-risk:RightToCompensation
+    :suggestAdd {
+        ?perm 
+        odrl:duty [
+            a odrl:Duty ;
+            odrl:assignee :provider ;
+            odrl:action odrl:compensate ;
+            odrl:informedParty :customer ;
+            odrl:refinement [
+                a odrl:Constraint ;
+                odrl:leftOperand odrl:payAmount;
+                odrl:operator odrl:eq;
+                odrl:rightOperand "3000"^^xsd:decimal;
+                odrl:unit <http://dbpedia.org/resource/Euro>
+            ]
+        ] .
+    } .
 } .

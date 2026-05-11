@@ -7,8 +7,10 @@
 @prefix dpv: <https://w3id.org/dpv#> .
 @prefix risk: <https://w3id.org/dpv/risk#> .
 @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
-@prefix new: <http://example.com/new#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix tosl-risk: <https://w3id.org/tosl/risk#> .
+@prefix dpv-odrl: <https://w3id.org/dpv/mappings/odrl#> .
+
 
 {
     ?agreement :policyGraph ?G .
@@ -53,7 +55,7 @@
 
     ?perm a dpv:Permission .
 
-    ?src a new:ContentRemovalClause ;
+    ?src a tosl-risk:ContentRemovalClause ;
         dpv:hasContractualClause ?perm .
 
     ?risk a dpv:Risk ;
@@ -64,11 +66,10 @@
     ?risk dpv:hasConsequence [
         a risk:DataLoss, risk:ServiceNotProvided ;
         dpv:hasImpact risk:FinancialLoss, risk:NonMaterialDamage, risk:CustomerConfidenceLoss ;
-        dpv:isMitigatedByMeasure new:DeletionNotice, new:ProvideJustification
+        dpv:isMitigatedByMeasure tosl-risk:DeletionNotice, tosl-risk:ProvideJustification
     ] .
 
-    new:DeletionNotice a dpv:OrganisationalMeasure, dpv:RiskMitigationMeasure ;
-        skos:broader dpv:Notice ;
+    tosl-risk:DeletionNotice 
         :suggestAdd {
             ?perm 
             odrl:constraint [
@@ -92,7 +93,7 @@
             ] .
         } .
 
-    new:ProvideJustification a dpv:RiskMitigationMeasure ;
+    tosl-risk:ProvideJustification 
         :suggestAdd {
             ?perm 
             odrl:constraint [
@@ -102,7 +103,5 @@
                 odrl:rightOperand ( "termviolation" "serviceprotection" "fraudprevention" )
             ] .
         } .
-
-    ?risk log:outputString ?why .
 
 } .
